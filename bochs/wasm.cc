@@ -202,7 +202,8 @@ static int console_read_stdin(void *opaque, uint8_t *buf, int len)
     return j;
 }
 
-const char *init_done_str = "=\n";
+// Filled on first read after the Wizer resume so the guest can set its wall clock.
+char init_done_str[32];
 int init_done_str_pos = 0;
 
 static inline int min_int(int a, int b);
@@ -210,6 +211,12 @@ static inline int min_int(int a, int b);
 static int console_read(void *opaque, uint8_t *buf, int len)
 {
   if ((init_start) && (!init_done)) {
+    if (init_done_str_pos == 0) {
+      struct timespec now;
+      clock_gettime(CLOCK_REALTIME, &now);
+      snprintf(init_done_str, sizeof(init_done_str), "=%lld.%09ld\n",
+               (long long)now.tv_sec, (long)now.tv_nsec);
+    }
     int l = min_int(strlen(init_done_str) - init_done_str_pos, len);
     memcpy(buf, init_done_str + init_done_str_pos, l);
     init_done_str_pos += l;

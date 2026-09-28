@@ -26,8 +26,21 @@
 #define LOG_THIS BX_CPU_THIS_PTR
 
 #include <stdlib.h>
+#ifdef WASI
+#include <unistd.h>
+#endif
 
 #define HW_RANDOM_GENERATOR_READY (1)
+
+static int random_byte(void)
+{
+#ifdef WASI
+  // rand() state is captured in the Wizer snapshot, so every resume would replay it.
+  unsigned char byte;
+  if (getentropy(&byte, 1) == 0) return byte;
+#endif
+  return rand() & 0xff;
+}
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDRAND_Ew(bxInstruction_c *i)
 {
@@ -44,9 +57,9 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDRAND_Ew(bxInstruction_c *i)
   clearEFlagsOSZAPC();
 
   if (HW_RANDOM_GENERATOR_READY) {
-    val_16 |= rand() & 0xff;  // hack using std C rand() function
+    val_16 |= random_byte();
     val_16 <<= 8;
-    val_16 |= rand() & 0xff;
+    val_16 |= random_byte();
 
     assert_CF();
   }
@@ -71,13 +84,13 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDRAND_Ed(bxInstruction_c *i)
   clearEFlagsOSZAPC();
 
   if (HW_RANDOM_GENERATOR_READY) {
-    val_32 |= rand() & 0xff;  // hack using std C rand() function
+    val_32 |= random_byte();
     val_32 <<= 8;
-    val_32 |= rand() & 0xff;
+    val_32 |= random_byte();
     val_32 <<= 8;
-    val_32 |= rand() & 0xff;
+    val_32 |= random_byte();
     val_32 <<= 8;
-    val_32 |= rand() & 0xff;
+    val_32 |= random_byte();
 
     assert_CF();
   }
@@ -103,21 +116,21 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDRAND_Eq(bxInstruction_c *i)
   clearEFlagsOSZAPC();
 
   if (HW_RANDOM_GENERATOR_READY) {
-    val_64 |= rand() & 0xff;  // hack using std C rand() function
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
 
     assert_CF();
   }
@@ -143,9 +156,9 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDSEED_Ew(bxInstruction_c *i)
   clearEFlagsOSZAPC();
 
   if (HW_RANDOM_GENERATOR_READY) {
-    val_16 |= rand() & 0xff;  // hack using std C rand() function
+    val_16 |= random_byte();
     val_16 <<= 8;
-    val_16 |= rand() & 0xff;
+    val_16 |= random_byte();
 
     assert_CF();
   }
@@ -170,13 +183,13 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDSEED_Ed(bxInstruction_c *i)
   clearEFlagsOSZAPC();
 
   if (HW_RANDOM_GENERATOR_READY) {
-    val_32 |= rand() & 0xff;  // hack using std C rand() function
+    val_32 |= random_byte();
     val_32 <<= 8;
-    val_32 |= rand() & 0xff;
+    val_32 |= random_byte();
     val_32 <<= 8;
-    val_32 |= rand() & 0xff;
+    val_32 |= random_byte();
     val_32 <<= 8;
-    val_32 |= rand() & 0xff;
+    val_32 |= random_byte();
 
     assert_CF();
   }
@@ -202,21 +215,21 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::RDSEED_Eq(bxInstruction_c *i)
   clearEFlagsOSZAPC();
 
   if (HW_RANDOM_GENERATOR_READY) {
-    val_64 |= rand() & 0xff;  // hack using std C rand() function
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
     val_64 <<= 8;
-    val_64 |= rand() & 0xff;
+    val_64 |= random_byte();
 
     assert_CF();
   }
